@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.27"
+const compiledVersion = "3.0.28"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -43,6 +43,7 @@ export async function updatePackagedExecutable(): Promise<void> {
         if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`)
         const manifest = await response.json() as { version?: string; url?: string; sha256?: string }
         if (!manifest.version || !manifest.url || !manifest.sha256 || !newer(manifest.version, readVersion())) return
+        process.env.LYRICS_STATUS_UPDATE_VERSION = manifest.version
 
         const downloadPath = join(tmpdir(), `LyricsStatus-${process.pid}.download.exe`)
         const downloadUrl = `${manifest.url}${manifest.url.includes("?") ? "&" : "?"}${cacheBust}`
