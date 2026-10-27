@@ -15,10 +15,6 @@ $icon = New-Object System.Windows.Forms.NotifyIcon
 if (Test-Path -LiteralPath $iconPath) { $icon.Icon = New-Object System.Drawing.Icon($iconPath) } else { $icon.Icon = [System.Drawing.SystemIcons]::Application }
 $icon.Text = "LyricsStatus"
 $icon.Visible = $true
-$updateVersion = "__UPDATE_VERSION__"
-if ($updateVersion) {
-  $icon.ShowBalloonTip(5000, "LyricsStatus", "Update v$updateVersion is installing. Your settings will stay in place.", [System.Windows.Forms.ToolTipIcon]::Info)
-}
 $menu = New-Object System.Windows.Forms.ContextMenuStrip
 $open = $menu.Items.Add("Open settings")
 $quit = $menu.Items.Add("Quit LyricsStatus")
@@ -55,14 +51,9 @@ export function startTray(): void {
             ? join(__dirname, "../res/logo.ico")
             : join(dirname(process.execPath), "res/logo.ico")
         const iconData = existsSync(iconPath) ? readFileSync(iconPath).toString("base64") : ""
-        const updateVersion = (process.env.LYRICS_STATUS_UPDATE_VERSION || "").replace(/[^0-9A-Za-z._-]/g, "")
-        writeFileSync(trayScriptPath, trayScript.replace("__ICON_DATA__", iconData).replace("__UPDATE_VERSION__", updateVersion), "utf8")
-        const commandShell = process.env.ComSpec || "cmd.exe"
-        trayProcess = spawn(commandShell, [
-            "/c",
-            "start",
-            "",
-            "powershell.exe",
+        writeFileSync(trayScriptPath, trayScript.replace("__ICON_DATA__", iconData), "utf8")
+        const powershellPath = join(process.env.SystemRoot || "C:\\Windows", "System32/WindowsPowerShell/v1.0/powershell.exe")
+        trayProcess = spawn(powershellPath, [
             "-NoLogo",
             "-NoProfile",
             "-STA",

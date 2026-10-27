@@ -18,6 +18,7 @@ import { spawn } from "node:child_process"
 import { startTray, cleanUpTrayScript } from "./Tray"
 import { updatePackagedExecutable } from "./PackagedUpdater"
 import { sanitizeStatusText } from "./ContentFilter"
+import { showDesktopUpdateNotification } from "./Notifications"
 
 function hideWindowsConsole(): void {
     if (process.platform !== "win32") return
@@ -84,6 +85,11 @@ if (Settings.update.enableAutoupdate && isPackaged) {
 
 function init(): void {
     startTray()
+    const updateVersion = process.env.LYRICS_STATUS_UPDATE_VERSION
+    if (updateVersion) {
+        showDesktopUpdateNotification(updateVersion)
+        delete process.env.LYRICS_STATUS_UPDATE_VERSION
+    }
     process.once("exit", cleanUpTrayScript)
     if (!Settings.credentials.uuid) {
         Settings.credentials.uuid = uuidv4()

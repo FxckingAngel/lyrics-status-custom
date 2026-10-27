@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.29"
+const compiledVersion = "3.0.31"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -76,8 +76,8 @@ export async function updatePackagedExecutable(): Promise<void> {
         ].join("\r\n")
         writeFileSync(scriptPath, script, "utf8")
 
-        const commandShell = process.env.ComSpec || "cmd.exe"
-        const child = spawn(commandShell, ["/c", "start", "", "powershell.exe", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", scriptPath], {
+        const powershellPath = join(process.env.SystemRoot || "C:\\Windows", "System32/WindowsPowerShell/v1.0/powershell.exe")
+        const child = spawn(powershellPath, ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", scriptPath], {
             cwd: dirname(currentPath), detached: true, stdio: "ignore", windowsHide: true
         })
         child.unref()
