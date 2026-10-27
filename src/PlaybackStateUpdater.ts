@@ -26,6 +26,11 @@ interface PlaybackResponse {
     is_playing: boolean
 }
 
+export function reconcileProgress(currentProgress: number, measuredProgress: number): number {
+    const correction = Math.max(-750, Math.min(750, measuredProgress - currentProgress))
+    return Math.max(0, currentProgress + correction)
+}
+
 export class PlaybackStateUpdater {
     public playbackState: PlaybackState
 
@@ -76,10 +81,8 @@ export class PlaybackStateUpdater {
             const measuredProgress = json.progress_ms + Math.round((responseReceivedAt - roundTripTimeStart) / 2)
             const sameSong = playbackState.songId === json.item.id
             if (sameSong && json.is_playing && playbackState.isPlaying && this.lastSpotifySyncAt > 0) {
-                const elapsed = responseReceivedAt - this.lastSpotifySyncAt
-                const predictedProgress = playbackState.songProgress + elapsed
-                const correction = Math.max(-750, Math.min(750, measuredProgress - predictedProgress))
-                playbackState.songProgress = Math.max(0, predictedProgress + correction)
+                // songProgress is already advanced by the main playback loop between syncs.
+                playbackState.songProgress = reconcileProgress(playbackState.songProgress, measuredProgress)
             } else {
                 playbackState.songProgress = measuredProgress
             }

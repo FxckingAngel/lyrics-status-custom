@@ -17,6 +17,7 @@ import { dirname, join } from "node:path"
 import { spawn } from "node:child_process"
 import { startTray, cleanUpTrayScript } from "./Tray"
 import { updatePackagedExecutable } from "./PackagedUpdater"
+import { sanitizeStatusText } from "./ContentFilter"
 
 function hideWindowsConsole(): void {
     if (process.platform !== "win32") return
@@ -152,7 +153,7 @@ function init(): void {
         author: playbackState.songAuthor,
         progress: statusChanger.formatSeconds(+(playbackState.songProgress / 1000).toFixed(0)),
         isPlaying: playbackState.isPlaying,
-        currentLyric: playbackState.currentLine?.text || "Not available",
+        currentLyric: playbackState.currentLine ? sanitizeStatusText(playbackState.currentLine.text) : "Not available",
         lyricsSource: lyricsFetcher.lastFetchedFrom,
         statusResult: statusChanger.lastStatusResult,
         lastStatusUpdateAt: statusChanger.lastStatusUpdateAt,
