@@ -5,7 +5,8 @@ Extract the whole ZIP to a normal folder first, such as:
   C:\Users\your-name\Desktop\LyricsStatus
 
 1. Open the extracted folder.
-2. Double-click Start-LyricsStatus.cmd.
+2. Double-click Start-LyricsStatus.cmd. Do not double-click
+   LyricsStatusLauncher.ps1; that file is started by the command file.
 3. The setup panel should open by itself. If it does not, open:
    http://127.0.0.1:8999
 4. Open the Account tab.
@@ -25,8 +26,10 @@ The app saves your settings in settings.json. Future executable updates replace
 the program only; they keep settings.json, the lyric cache, and the saved
 rate-limit cooldown. You do not need to set everything up again after updating.
 
-Use Start-LyricsStatus.cmd every time so automatic updates can run. Starting
-LyricsStatus.exe directly skips the updater until the next launcher start.
+Use Start-LyricsStatus.cmd every time so automatic updates can run. If you made
+a desktop shortcut, make the shortcut target Start-LyricsStatus.cmd, not the
+.ps1 file. Starting LyricsStatus.exe directly skips the updater until the next
+launcher start.
 
 If Spotify authorization returns an error:
 - Check that the redirect URI is exactly the one above.

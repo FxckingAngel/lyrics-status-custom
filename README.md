@@ -60,8 +60,10 @@ Then wait for modules to install.
 
 For the Windows release, extract the ZIP and run `Start-LyricsStatus.cmd`.
 This starts the updater and then opens the local setup panel. Do not run the
-EXE from inside a ZIP preview. If you are running from source, install Node.js
-dependencies with `npm install`, then run `npm start`.
+EXE from inside a ZIP preview, and do not open `LyricsStatusLauncher.ps1`
+directly. If you make a desktop shortcut, point it at `Start-LyricsStatus.cmd`.
+If you are running from source, install Node.js dependencies with `npm install`,
+then run `npm start`.
 
 If the panel does not open automatically, open `http://127.0.0.1:8999` in a
 browser. The Account tab contains the connection settings and the other tabs
