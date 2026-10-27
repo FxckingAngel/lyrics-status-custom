@@ -1,8 +1,10 @@
 import fetch from "node-fetch"
-import AbortController from "abort-controller"
+import AbortControllerPolyfill from "abort-controller"
 
 export async function fetchWithTimeout(input: string | URL, init: RequestInit = {}, timeoutMs = 10000): Promise<Response> {
-    const controller = new AbortController()
+    const controller = typeof globalThis.AbortController === "function"
+        ? new globalThis.AbortController()
+        : new AbortControllerPolyfill()
     let timeout: NodeJS.Timeout | undefined
     const request = (typeof globalThis.fetch === "function"
         ? globalThis.fetch(input, { ...init, signal: controller.signal as any })
