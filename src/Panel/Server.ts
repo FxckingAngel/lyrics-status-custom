@@ -1,7 +1,8 @@
 import express from "express"
 import { createServer } from "node:http"
 import { WebSocketServer } from "ws"
-import { join } from "node:path"
+import { join, dirname } from "node:path"
+import { readFileSync } from "node:fs"
 import { Settings } from "../Settings"
 import { SpotifyService } from "../SpotifyService"
 import { spawn } from "node:child_process"
@@ -25,7 +26,11 @@ export function startServer(runtimeStatus?: RuntimeStatus): void {
     })
 
     app.get("/api/status", (req, res) => {
-        res.json(runtimeStatus ? runtimeStatus() : { running: true })
+        res.json({
+            version: getVersion(),
+            settingsFile: "settings.json",
+            ...(runtimeStatus ? runtimeStatus() : { running: true })
+        })
     })
 
     app.get("/callback", async (req, res) => {
@@ -82,6 +87,18 @@ export function startServer(runtimeStatus?: RuntimeStatus): void {
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
+}
+
+function getVersion(): string {
+    const versionPath = isPackaged()
+        ? join(dirname(process.execPath), "VERSION")
+        : join(__dirname, "../../VERSION")
+
+    try {
+        return readFileSync(versionPath, "utf8").trim()
+    } catch {
+        return "unknown"
+    }
 }
 
 function openPanel(): void {

@@ -1,4 +1,5 @@
 import { readFileSync, renameSync, writeFileSync } from "node:fs"
+import { dirname, join } from "node:path"
 import { Debug } from "./Debug"
 
 type SettingsObject = Record<string, unknown>
@@ -20,6 +21,12 @@ function mergeSettings<T extends SettingsObject>(defaults: T, value: unknown): T
 }
 
 export class Settings {
+    private static readonly dataDirectory = Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
+        ? dirname(process.execPath)
+        : process.cwd()
+
+    public static readonly filePath = join(Settings.dataDirectory, "settings.json")
+
     public static credentials = {
         token: "",
         cookies: "",
@@ -60,11 +67,11 @@ export class Settings {
             timings: this.timings,
             update: this.update
         }, null, 2)
-        const temporaryPath = "./settings.json.tmp"
+        const temporaryPath = Settings.filePath + ".tmp"
 
         try {
             writeFileSync(temporaryPath, contents, "utf8")
-            renameSync(temporaryPath, "./settings.json")
+            renameSync(temporaryPath, Settings.filePath)
         } catch (error) {
             Debug.write("An error occurred while saving settings: " + (error as Error).stack)
         }
@@ -74,7 +81,7 @@ export class Settings {
         let settings
 
         try {
-            settings = JSON.parse(readFileSync("./settings.json").toString())
+            settings = JSON.parse(readFileSync(Settings.filePath).toString())
         } catch(e) {
             Debug.write("An error occurred while trying to read settings from file. Using defaults. Error: " + (e as Error).stack)
         }
