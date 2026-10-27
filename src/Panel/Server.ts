@@ -18,7 +18,7 @@ export function startServer(runtimeStatus?: RuntimeStatus): void {
         maxPayload: 64 * 1024
     })
 
-    const staticDirectory = isPackaged() ? join(process.cwd(), "static") : join(__dirname, "../../static")
+    const staticDirectory = join(__dirname, "../../static")
     app.use("/", express.static(staticDirectory))
 
     app.get("/", (req, res) => {
@@ -31,6 +31,11 @@ export function startServer(runtimeStatus?: RuntimeStatus): void {
             settingsFile: "settings.json",
             ...(runtimeStatus ? runtimeStatus() : { running: true })
         })
+    })
+
+    app.post("/api/quit", (req, res) => {
+        res.sendStatus(204)
+        setTimeout(() => process.exit(0), 50)
     })
 
     app.get("/callback", async (req, res) => {
@@ -90,15 +95,16 @@ function isPackaged(): boolean {
 }
 
 function getVersion(): string {
-    const versionPath = isPackaged()
-        ? join(dirname(process.execPath), "VERSION")
-        : join(__dirname, "../../VERSION")
+    const versionPaths = isPackaged()
+        ? [join(dirname(process.execPath), "VERSION"), join(__dirname, "../../VERSION")]
+        : [join(__dirname, "../../VERSION")]
 
-    try {
-        return readFileSync(versionPath, "utf8").trim()
-    } catch {
-        return "unknown"
+    for (const versionPath of versionPaths) {
+        try {
+            return readFileSync(versionPath, "utf8").trim()
+        } catch {}
     }
+    return "3.0.15"
 }
 
 function openPanel(): void {

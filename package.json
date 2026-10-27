@@ -4,6 +4,7 @@
     "express": "^4.21.2",
     "he": "^1.2.0",
     "node-fetch": "^2.7.0",
+    "node-hide-console-window": "^2.2.0",
     "node-stream-zip": "^1.15.0",
     "totp-generator": "^1.0.0",
     "uuid": "^11.1.0",
@@ -25,7 +26,8 @@
     "assets": [
       "static/**/*",
       "res/**/*",
-      "VERSION"
+      "VERSION",
+      "node_modules/node-hide-console-window/**/*"
     ]
   }
 }

@@ -1,35 +1,50 @@
 LyricsStatus: first-time setup
 
-This is the Windows package. Do not run the EXE from inside the ZIP preview.
-Extract the whole ZIP to a normal folder first, such as:
-  C:\Users\your-name\Desktop\LyricsStatus
+Basic users — use the EXE
+-------------------------
+1. Download `LyricsStatus.exe` from the release's Assets section.
+2. Put it in a normal folder, such as:
+   C:\Users\your-name\Desktop\LyricsStatus
+3. Double-click `LyricsStatus.exe`.
+4. The setup panel opens in your browser. A LyricsStatus icon appears in the
+   Windows system tray; right-click it to open settings or quit the app.
 
-1. Open the extracted folder.
-2. Double-click Start-LyricsStatus.cmd. Do not double-click
-   LyricsStatusLauncher.ps1; that file is started by the command file.
-3. The setup panel should open by itself. If it does not, open:
+The EXE is the recommended download. It does not need Node.js, npm, or a
+separate launcher file.
+
+Advanced users — use the ZIP
+----------------------------
+Download `LyricsStatus-for-friend.zip` from the release's Assets section and
+extract the whole ZIP to a normal folder before running it. The ZIP includes
+the launcher, settings template, documentation, and files useful for manual
+inspection or troubleshooting. Do not run the EXE from inside a ZIP preview.
+
+After extracting, run `LyricsStatus.exe`. `Start-LyricsStatus.cmd` is available
+as a backup launch path. Do not double-click `LyricsStatusLauncher.ps1`.
+
+Setup steps after choosing a download:
+1. The setup panel should open by itself. If it does not, open:
    http://127.0.0.1:8999
-4. Open the Account tab.
-5. Create or use your own Spotify Developer app at:
+2. Open the Account tab.
+3. Create or use your own Spotify Developer app at:
    https://developer.spotify.com/dashboard
-6. Add this exact redirect URI to that Spotify app:
+4. Add this exact redirect URI to that Spotify app:
    http://127.0.0.1:8999/callback/
    The final slash matters.
-7. Enter your Spotify Client ID and Client Secret in the panel.
-8. Click Authorize Spotify and finish the login in your browser.
-9. If the app asks for Discord account credentials, use your own account
+5. Enter your Spotify Client ID and Client Secret in the panel.
+6. Click Authorize Spotify and finish the login in your browser.
+7. If the app asks for Discord account credentials, use your own account
    credential only. Treat it like a password. Never send it to anyone or
    commit it to a repository. A normal Discord bot token will not work.
-10. Start Spotify and play a song. Give the app a few seconds to detect it.
+8. Start Spotify and play a song. Give the app a few seconds to detect it.
 
 The app saves your settings in settings.json. Future executable updates replace
 the program only; they keep settings.json, the lyric cache, and the saved
 rate-limit cooldown. You do not need to set everything up again after updating.
 
-Use Start-LyricsStatus.cmd every time so automatic updates can run. If you made
-a desktop shortcut, make the shortcut target Start-LyricsStatus.cmd, not the
-.ps1 file. Starting LyricsStatus.exe directly skips the updater until the next
-launcher start.
+You can make a desktop shortcut to LyricsStatus.exe. Direct EXE launches also
+start the updater automatically. A LyricsStatus icon appears in the Windows
+system tray; right-click it to open settings or quit the app.
 
 If Spotify authorization returns an error:
 - Check that the redirect URI is exactly the one above.

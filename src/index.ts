@@ -16,6 +16,20 @@ import { ExternalAuthServerAPI } from "./ExternalAuthServerAPI"
 import { existsSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { spawn } from "node:child_process"
+import { startTray, cleanUpTrayScript } from "./Tray"
+import { updatePackagedExecutable } from "./PackagedUpdater"
+
+function hideWindowsConsole(): void {
+    if (process.platform !== "win32") return
+    try {
+        const consoleWindow = require("node-hide-console-window") as { hideConsole: () => void }
+        consoleWindow.hideConsole()
+    } catch (error) {
+        Debug.write(`Console hiding unavailable: ${(error as Error).message}`)
+    }
+}
+
+hideWindowsConsole()
 
 const isPackaged = Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
 
@@ -58,7 +72,13 @@ if (handOffToUpdater()) process.exit(0)
 
 Settings.load()
 
-if (Settings.update.enableAutoupdate && !isPackaged) {
+if (Settings.update.enableAutoupdate && isPackaged) {
+    updatePackagedExecutable().then(() => init())
+        .catch((error) => {
+            Debug.write("LyricsStatus packaged update check failed: " + (error as Error).stack)
+            init()
+        })
+} else if (Settings.update.enableAutoupdate && !isPackaged) {
     Updater.tryUpdate()
         .then(() => {
             init()
@@ -73,6 +93,8 @@ if (Settings.update.enableAutoupdate && !isPackaged) {
 }
 
 function init(): void {
+    startTray()
+    process.once("exit", cleanUpTrayScript)
     if (!Settings.credentials.uuid) {
         Settings.credentials.uuid = uuidv4()
 

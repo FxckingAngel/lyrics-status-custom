@@ -26,7 +26,20 @@ LyricsStatus needs version 17.x.x or higher.
 
 ### Downloading LyricsStatus
 
-You can download the latest Windows package from the [Releases](https://github.com/FxckingAngel/lyrics-status-custom/releases) page, or clone this repository.
+Open the [Releases](https://github.com/FxckingAngel/lyrics-status-custom/releases) page.
+
+For basic users, download `LyricsStatus.exe` from the release's Assets section
+and double-click it. The EXE is the normal Windows path and does not require
+Node.js, npm, or a separate launcher. The local setup panel opens in your
+browser, and the tray icon can reopen settings or quit the app.
+
+For advanced users, download `LyricsStatus-for-friend.zip`, extract it, and use
+the included files for manual inspection, troubleshooting, or source-style
+launching. Do not run the EXE from inside a ZIP preview. `Start-LyricsStatus.cmd`
+is available as a backup launch path; do not open `LyricsStatusLauncher.ps1`
+directly.
+
+You can also clone this repository.
 
 For Git, use this command:
 
@@ -58,10 +71,9 @@ Then wait for modules to install.
 
 ### Running and configuring
 
-For the Windows release, extract the ZIP and run `Start-LyricsStatus.cmd`.
-This starts the updater and then opens the local setup panel. Do not run the
-EXE from inside a ZIP preview, and do not open `LyricsStatusLauncher.ps1`
-directly. If you make a desktop shortcut, point it at `Start-LyricsStatus.cmd`.
+For the Windows release, use the EXE for the normal setup described above. A
+LyricsStatus icon appears in the Windows system tray with Open settings and
+Quit commands.
 If you are running from source, install Node.js dependencies with `npm install`,
 then run `npm start`.
 
