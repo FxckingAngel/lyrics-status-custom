@@ -2,6 +2,9 @@ $ErrorActionPreference = "Stop"
 $env:LYRICS_STATUS_LAUNCHER = "1"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$mutex = New-Object System.Threading.Mutex($false, "LyricsStatusLauncherSingleInstance")
+if (-not $mutex.WaitOne(0)) { exit 0 }
+
 $appPath = Join-Path $root "LyricsStatus.exe"
 $configPath = Join-Path $root "launcher.json"
 $downloadPath = Join-Path $root "LyricsStatus.download.exe"
