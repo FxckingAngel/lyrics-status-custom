@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.19"
+const compiledVersion = "3.0.20"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -38,13 +38,15 @@ export async function updatePackagedExecutable(): Promise<void> {
     if (!isPackaged()) return
 
     try {
-        const response = await fetchWithTimeout(manifestUrl, { headers: { Accept: "application/json" } }, 8000)
+        const cacheBust = `update=${Date.now()}`
+        const response = await fetchWithTimeout(`${manifestUrl}?${cacheBust}`, { headers: { Accept: "application/json" } }, 8000)
         if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`)
         const manifest = await response.json() as { version?: string; url?: string; sha256?: string }
         if (!manifest.version || !manifest.url || !manifest.sha256 || !newer(manifest.version, readVersion())) return
 
         const downloadPath = join(tmpdir(), `LyricsStatus-${process.pid}.download.exe`)
-        const download = await fetchWithTimeout(manifest.url, {}, 30000)
+        const downloadUrl = `${manifest.url}${manifest.url.includes("?") ? "&" : "?"}${cacheBust}`
+        const download = await fetchWithTimeout(downloadUrl, {}, 30000)
         if (!download.ok) throw new Error(`Executable download failed: ${download.status}`)
         const bytes = Buffer.from(await download.arrayBuffer())
         const actualHash = createHash("sha256").update(bytes).digest("hex").toLowerCase()
