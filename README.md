@@ -58,13 +58,22 @@ Then wait for modules to install.
 
 ### Running and configuring
 
-Run `npm run start` to start LyricsStatus.
+For the Windows release, extract the ZIP and run `Start-LyricsStatus.cmd`.
+This starts the updater and then opens the local setup panel. Do not run the
+EXE from inside a ZIP preview. If you are running from source, install Node.js
+dependencies with `npm install`, then run `npm start`.
 
-Now you need to configure it. Open `localhost:8999` in your browser, you should see a menu with various settings.
+If the panel does not open automatically, open `http://127.0.0.1:8999` in a
+browser. The Account tab contains the connection settings and the other tabs
+control appearance, timing, and advanced behavior.
 
 The Discord custom-status integration uses an account credential in the `Token` field. Treat it like a password: do not extract it from browser developer tools, share it, or commit it to a repository. A normal Discord bot token is not accepted by the personal custom-status endpoint.
 
-For Spotify, create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), enter its Client ID and Client Secret, and register `http://127.0.0.1:8999/callback/` as the redirect URI. Authorize the account from the panel. Spotify cookies are optional and should never be shared or committed.
+For Spotify, create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), enter its Client ID and Client Secret, and register `http://127.0.0.1:8999/callback/` as the redirect URI. The URI must match exactly, including the final slash. Authorize the account from the panel. Spotify cookies are optional and should never be shared or committed.
+
+The Windows package includes `FRIEND-SETUP.txt` with the same steps and
+troubleshooting notes. Each person must use their own Spotify authorization and
+their own Discord account credential. The package does not include yours.
 
 Start some song in Spotify, if it has lyrics, you should see current lyrics in your command prompt as well as in your Discord status.
 
@@ -84,11 +93,20 @@ Status updates are queued so only the newest lyric waits to be sent. LyricsStatu
 
 The desktop shortcut now starts `LyricsStatusLauncher.ps1`. The launcher keeps the executable outside the update operation, checks the configured HTTPS manifest every 60 seconds, verifies the downloaded file with its SHA-256 value, keeps a rollback copy, and restarts LyricsStatus after an update. A manifest must provide `version`, `url`, and `sha256`; without a newer valid manifest, the current executable is started unchanged.
 
+Updates do not replace `settings.json`, the lyric cache, or
+`rate-limit-state.json`. Re-run `Start-LyricsStatus.cmd` after an update; do not
+reconfigure the app unless the panel reports a credential problem.
+
 ### Troubleshooting
 
 #### Windows
 
-Try running command line with administrator privileges or disabling your firewall.
+If the panel does not open, allow the app through the private-network firewall
+prompt and open `http://127.0.0.1:8999` manually. If Spotify authorization
+fails, verify the exact redirect URI and the Spotify app's allowed users. A
+Discord `401` means the account credential was rejected; it is not a rate-limit
+response. A normal bot token is not accepted by the personal custom-status
+endpoint.
 
 #### Linux
 

@@ -9,7 +9,7 @@ $backupPath = Join-Path $root "LyricsStatus.previous.exe"
 function Read-LauncherConfig {
     if (-not (Test-Path -LiteralPath $configPath)) {
         return [pscustomobject]@{
-            manifestUrl = "https://github.com/OvalQuilter/lyrics-status/releases/latest/download/latest.json"
+            manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
             pollSeconds = 60
         }
     }

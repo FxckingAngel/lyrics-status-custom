@@ -1,16 +1,51 @@
-LyricsStatus setup
+LyricsStatus: first-time setup
 
-1. Run Start-LyricsStatus.cmd. This keeps the app ready for signed updates.
-   You can run LyricsStatus.exe directly for a one-time start.
-2. Open http://127.0.0.1:8999 if the panel does not open automatically.
-3. In Account setup, enter your own Spotify Client ID and Client Secret.
-4. Register this exact Spotify redirect URI in the Spotify Developer Dashboard:
+This is the Windows package. Do not run the EXE from inside the ZIP preview.
+Extract the whole ZIP to a normal folder first, such as:
+  C:\Users\your-name\Desktop\LyricsStatus
+
+1. Open the extracted folder.
+2. Double-click Start-LyricsStatus.cmd.
+3. The setup panel should open by itself. If it does not, open:
+   http://127.0.0.1:8999
+4. Open the Account tab.
+5. Create or use your own Spotify Developer app at:
+   https://developer.spotify.com/dashboard
+6. Add this exact redirect URI to that Spotify app:
    http://127.0.0.1:8999/callback/
-5. Click Authorize Spotify and finish the Spotify login in the browser.
-6. Enter your own Spotify cookies only if Spotify lyrics are needed.
+   The final slash matters.
+7. Enter your Spotify Client ID and Client Secret in the panel.
+8. Click Authorize Spotify and finish the login in your browser.
+9. If the app asks for Discord account credentials, use your own account
+   credential only. Treat it like a password. Never send it to anyone or
+   commit it to a repository. A normal Discord bot token will not work.
+10. Start Spotify and play a song. Give the app a few seconds to detect it.
 
-This package intentionally does not contain anyone else's Discord token,
-Spotify cookie, client secret, or refresh token.
+The app saves your settings in settings.json. Future executable updates replace
+the program only; they keep settings.json, the lyric cache, and the saved
+rate-limit cooldown. You do not need to set everything up again after updating.
 
-Automatic updates need a trusted manifest URL in launcher.json. Do not change
-it to a file or URL you do not control.
+Use Start-LyricsStatus.cmd every time so automatic updates can run. Starting
+LyricsStatus.exe directly skips the updater until the next launcher start.
+
+If Spotify authorization returns an error:
+- Check that the redirect URI is exactly the one above.
+- Make sure the Spotify app owner and account are allowed to use that app.
+- Confirm the Client ID and Client Secret were copied without extra spaces.
+- Remove and re-add the values in the panel, then authorize again.
+
+If Discord returns 401:
+- The Discord credential was rejected or expired. It is not a rate limit.
+- Enter your own current credential in the panel and save it.
+- Do not use a bot token and do not share account credentials.
+
+If a song has no lyrics, the app tries several lyric sources and matches title,
+artist, and duration before using a result. Some songs, edits, languages, and
+regions still have no synchronized lyrics available.
+
+This package intentionally does not contain anyone else's Discord credential,
+Spotify cookie, Client Secret, or refresh token.
+
+Do not change launcher.json unless you understand the update source. The
+launcher only accepts the configured HTTPS manifest and verifies the downloaded
+EXE's SHA-256 hash before replacing it.
