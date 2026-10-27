@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.22"
+const compiledVersion = "3.0.23"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
