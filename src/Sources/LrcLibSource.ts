@@ -29,18 +29,19 @@ export class LrcLibSource extends BaseSource {
         const response = await fetchWithTimeout(`${this.baseUrl}/get?${query}`)
         if (response.ok) {
             const result = this.toSongLyrics(await response.json() as LyricsResponse, track)
-            if (this.matchesTrack(result.track, track)) return result
+            if (this.matchesTrack(result.track, track, true)) return result
         }
 
-        return await this.searchLyrics(track)
+        try {
+            return await this.searchLyrics(track, true)
+        } catch {
+            return await this.searchLyrics(track, false)
+        }
     }
 
-    private async searchLyrics(track: TrackInfo): Promise<SongLyrics> {
-        const query = new URLSearchParams({
-            track_name: track.name,
-            artist_name: track.artist,
-            album_name: track.album
-        })
+    private async searchLyrics(track: TrackInfo, includeAlbum: boolean): Promise<SongLyrics> {
+        const query = new URLSearchParams({ track_name: track.name, artist_name: track.artist })
+        if (includeAlbum) query.set("album_name", track.album)
         const response = await fetchWithTimeout(`${this.baseUrl}/search?${query}`)
         if (!response.ok) throw new Error(`Lookup failed: ${response.status}`)
 
@@ -48,7 +49,13 @@ export class LrcLibSource extends BaseSource {
         const result = candidates
             .map((candidate) => this.toSongLyrics(candidate, track))
             .filter((candidate) => candidate.lines.length > 0 && this.matchesTrack(candidate.track, track))
-            .sort((a, b) => this.matchScore(b.track, track) - this.matchScore(a.track, track))[0]
+            .sort((a, b) => {
+                const syncedDifference = Number(Boolean(b.isSynced)) - Number(Boolean(a.isSynced))
+                if (syncedDifference) return syncedDifference
+                const scoreDifference = this.matchScore(b.track, track) - this.matchScore(a.track, track)
+                if (scoreDifference) return scoreDifference
+                return this.durationDifference(a.track, track) - this.durationDifference(b.track, track)
+            })[0]
 
         if (!result) throw new Error("No exact lyrics match found")
         return result
@@ -92,13 +99,26 @@ export class LrcLibSource extends BaseSource {
         })
     }
 
-    private matchesTrack(candidate: TrackInfo, requested: TrackInfo): boolean {
-        return this.matchScore(candidate, requested) >= 3 && Math.abs(candidate.duration - requested.duration) <= 4000
+    private matchesTrack(candidate: TrackInfo, requested: TrackInfo, requireAlbum = false): boolean {
+        const score = this.matchScore(candidate, requested)
+        const durationMatches = candidate.duration <= 0 || Math.abs(candidate.duration - requested.duration) <= 8000
+        const albumMatches = this.normalize(candidate.album) === this.normalize(requested.album)
+        return score >= 2 && durationMatches && (!requireAlbum || albumMatches)
     }
 
     private matchScore(candidate: TrackInfo, requested: TrackInfo): number {
-        const normalize = (value: string): string => value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
-        return [candidate.name, candidate.artist, candidate.album].reduce((score, value, index) => score + (normalize(value) === normalize([requested.name, requested.artist, requested.album][index]) ? 1 : 0), 0)
+        const titleMatches = this.normalize(candidate.name) === this.normalize(requested.name)
+        const artistMatches = this.normalize(candidate.artist) === this.normalize(requested.artist)
+        const albumMatches = this.normalize(candidate.album) === this.normalize(requested.album)
+        return (titleMatches ? 3 : 0) + (artistMatches ? 3 : 0) + (albumMatches ? 1 : 0)
+    }
+
+    private normalize(value: string): string {
+        return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
+    }
+
+    private durationDifference(candidate: TrackInfo, requested: TrackInfo): number {
+        return candidate.duration > 0 ? Math.abs(candidate.duration - requested.duration) : Number.MAX_SAFE_INTEGER
     }
 
         /**

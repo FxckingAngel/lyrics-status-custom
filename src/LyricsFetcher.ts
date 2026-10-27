@@ -104,6 +104,7 @@ export class LyricsFetcher {
     private matchesTrack(candidate: TrackInfo, requested: TrackInfo): boolean {
         const normalize = (value: string): string => value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
         const sameText = (a: string, b: string): boolean => normalize(a) === normalize(b)
-        return sameText(candidate.name, requested.name) && sameText(candidate.artist, requested.artist) && sameText(candidate.album, requested.album) && Math.abs(candidate.duration - requested.duration) <= 4000
+        const durationMatches = candidate.duration <= 0 || Math.abs(candidate.duration - requested.duration) <= 8000
+        return sameText(candidate.name, requested.name) && sameText(candidate.artist, requested.artist) && durationMatches
     }
 }

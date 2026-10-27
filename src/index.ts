@@ -49,6 +49,8 @@ function init(): void {
     const lyricsFetcher = new LyricsFetcher()
     lyricsFetcher.addSource(new LrcLibSource())
     lyricsFetcher.addSource(new SpotifySource())
+    lyricsFetcher.addSource(new NetEaseMusicSource())
+    lyricsFetcher.addSource(new QQMusicSource())
 
     const playbackState = new PlaybackState()
     const playbackStateUpdater = new PlaybackStateUpdater(playbackState, lyricsFetcher)

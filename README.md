@@ -72,7 +72,7 @@ Start some song in Spotify, if it has lyrics, you should see current lyrics in y
 
 LyricsStatus queries LRCLIB first using the Spotify title, primary artist, album, and duration. If the direct result is missing or points to another release, it searches LRCLIB candidates and accepts only an exact metadata match. Synchronized lyrics are preferred; plain lyrics are used when LRCLIB has no synchronized version. Results are cached with the same metadata, so a cached result for a different release is not reused.
 
-Spotify's lyric endpoint is the fallback and requires the Spotify authorization already configured for playback. Spotify cookies may also be needed for its Web Player lyric endpoint. No lyric service can provide every song, version, language, or region, and an unavailable or mismatched result is reported as unavailable instead of being presented as a match.
+Spotify's lyric endpoint is tried after LRCLIB and requires the Spotify authorization already configured for playback. Spotify cookies may also be needed for its Web Player lyric endpoint. NetEase and QQ are used as lower-confidence final fallbacks when the stronger sources have no result. No lyric service can provide every song, version, language, or region, and duration/title/artist checks are used to avoid accepting an unrelated release.
 
 The older NetEase and QQ endpoints are not enabled by default because their public search responses do not provide enough release and duration metadata to guarantee an exact match. LRCLIB and Spotify are the currently enabled integrations; neither requires a separate lyrics API key, but Spotify still requires valid Spotify credentials.
 
