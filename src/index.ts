@@ -9,7 +9,6 @@ import { StatusChanger } from "./StatusChanger"
 import { Debug } from "./Debug"
 import { startServer } from "./Panel/Server"
 import { Settings } from "./Settings"
-import { Updater } from "./Updater"
 import { SpotifyService } from "./SpotifyService"
 import { v4 as uuidv4 } from "uuid"
 import { ExternalAuthServerAPI } from "./ExternalAuthServerAPI"
@@ -76,16 +75,6 @@ if (Settings.update.enableAutoupdate && isPackaged) {
     updatePackagedExecutable().then(() => init())
         .catch((error) => {
             Debug.write("LyricsStatus packaged update check failed: " + (error as Error).stack)
-            init()
-        })
-} else if (Settings.update.enableAutoupdate && !isPackaged) {
-    Updater.tryUpdate()
-        .then(() => {
-            init()
-        })
-        .catch((e) => {
-            Debug.write("LyricsStatus failed to update. Error: " + e.stack)
-
             init()
         })
 } else {
