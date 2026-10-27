@@ -1,4 +1,5 @@
 $ErrorActionPreference = "Stop"
+$env:LYRICS_STATUS_LAUNCHER = "1"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $appPath = Join-Path $root "LyricsStatus.exe"

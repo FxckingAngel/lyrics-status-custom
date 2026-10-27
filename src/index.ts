@@ -13,10 +13,50 @@ import { Updater } from "./Updater"
 import { SpotifyService } from "./SpotifyService"
 import { v4 as uuidv4 } from "uuid"
 import { ExternalAuthServerAPI } from "./ExternalAuthServerAPI"
-
-Settings.load()
+import { existsSync } from "node:fs"
+import { dirname, join } from "node:path"
+import { spawn } from "node:child_process"
 
 const isPackaged = Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
+
+function handOffToUpdater(): boolean {
+    if (!isPackaged || process.env.LYRICS_STATUS_LAUNCHER === "1") return false
+
+    const launcherPath = join(dirname(process.execPath), "LyricsStatusLauncher.ps1")
+    if (!existsSync(launcherPath)) return false
+
+    const environment = { ...process.env, LYRICS_STATUS_LAUNCHER: "1" }
+    const commandShell = process.env.ComSpec || "cmd.exe"
+    const child = spawn(commandShell, [
+        "/c",
+        "start",
+        "",
+        "powershell.exe",
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-WindowStyle",
+        "Hidden",
+        "-File",
+        launcherPath
+    ], {
+        cwd: dirname(process.execPath),
+        detached: true,
+        stdio: "ignore",
+        windowsHide: true,
+        env: environment
+    })
+    child.on("error", (error) => {
+        console.error("Could not start the LyricsStatus updater:", error.message)
+    })
+    child.unref()
+    return true
+}
+
+if (handOffToUpdater()) process.exit(0)
+
+Settings.load()
 
 if (Settings.update.enableAutoupdate && !isPackaged) {
     Updater.tryUpdate()
