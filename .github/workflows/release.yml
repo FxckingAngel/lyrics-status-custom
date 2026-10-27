@@ -1,0 +1,92 @@
+name: Build signed release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-sign-release:
+    runs-on: windows-2025
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build portable EXE
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release -Force | Out-Null
+          npx -y @yao-pkg/pkg@6.11.0 dist/index.js --config package.json --targets node24-win-x64 --output release/LyricsStatus.exe
+
+      - name: Sign in to Azure with GitHub OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign EXE with Azure Artifact Signing
+        uses: azure/artifact-signing-action@v2
+        with:
+          endpoint: ${{ secrets.AZURE_ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ secrets.AZURE_ARTIFACT_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_ARTIFACT_SIGNING_PROFILE }}
+          files-folder: ${{ github.workspace }}\release
+          files-folder-filter: LyricsStatus.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          description: LyricsStatus
+          description-url: https://github.com/${{ github.repository }}
+
+      - name: Verify Authenticode signature
+        shell: pwsh
+        run: |
+          $signature = Get-AuthenticodeSignature -LiteralPath release/LyricsStatus.exe
+          if ($signature.Status -ne "Valid") {
+            throw "LyricsStatus.exe signature status was $($signature.Status): $($signature.StatusMessage)"
+          }
+          Write-Host "Signed by $($signature.SignerCertificate.Subject)"
+
+      - name: Create update manifest
+        shell: pwsh
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $hash = (Get-FileHash -Algorithm SHA256 release/LyricsStatus.exe).Hash.ToLowerInvariant()
+          $manifest = [ordered]@{
+            version = $version
+            url = "https://github.com/$env:REPOSITORY/releases/latest/download/LyricsStatus.exe"
+            sha256 = $hash
+          }
+          $manifest | ConvertTo-Json | Set-Content -LiteralPath release/latest.json -Encoding utf8NoBOM
+          Write-Host "Version $version"
+          Write-Host "SHA256 $hash"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $tag = $env:GITHUB_REF_NAME
+          if (-not $tag.StartsWith("v")) { $tag = "v$version" }
+          gh release create $tag release/LyricsStatus.exe release/latest.json --title "LyricsStatus $version" --generate-notes
