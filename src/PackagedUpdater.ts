@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.17"
+const compiledVersion = "3.0.18"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -64,14 +64,14 @@ export async function updatePackagedExecutable(): Promise<void> {
             "if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Force }",
             "Move-Item -LiteralPath $current -Destination $backup -Force",
             "Move-Item -LiteralPath $download -Destination $current -Force",
-            "Start-Process -FilePath $current -WorkingDirectory (Split-Path -Parent $current)",
+            "$env:LYRICS_STATUS_LAUNCHER = '1'",
+            "Start-Process -FilePath $current -WorkingDirectory (Split-Path -Parent $current) -WindowStyle Hidden -PassThru | Out-Null",
             "Remove-Item -LiteralPath $backup -Force",
             "Remove-Item -LiteralPath $PSCommandPath -Force"
         ].join("\r\n")
         writeFileSync(scriptPath, script, "utf8")
 
-        const commandShell = process.env.ComSpec || "cmd.exe"
-        const child = spawn(commandShell, ["/c", "start", "", "powershell.exe", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", scriptPath], {
+        const child = spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", scriptPath], {
             cwd: dirname(currentPath), detached: true, stdio: "ignore", windowsHide: true
         })
         child.unref()
