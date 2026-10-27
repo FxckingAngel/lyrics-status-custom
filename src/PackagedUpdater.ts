@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.26"
+const compiledVersion = "3.0.27"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -78,7 +78,8 @@ export async function updatePackagedExecutable(): Promise<void> {
             cwd: dirname(currentPath), detached: true, stdio: "ignore", windowsHide: true
         })
         child.unref()
-        process.exit(0)
+        // Let the panel show the update notice before the replacement restarts the app.
+        setTimeout(() => process.exit(0), 5000)
     } catch (error) {
         Debug.write(`Packaged update skipped: ${(error as Error).message}`)
     }
