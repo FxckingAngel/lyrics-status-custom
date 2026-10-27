@@ -7,7 +7,7 @@ import { fetchWithTimeout } from "./Http"
 import { Debug } from "./Debug"
 
 const manifestUrl = "https://github.com/FxckingAngel/lyrics-status-custom/releases/latest/download/latest.json"
-const compiledVersion = "3.0.28"
+const compiledVersion = "3.0.29"
 
 function isPackaged(): boolean {
     return Boolean((process as NodeJS.Process & { pkg?: unknown }).pkg)
@@ -53,6 +53,7 @@ export async function updatePackagedExecutable(): Promise<void> {
         const actualHash = createHash("sha256").update(bytes).digest("hex").toLowerCase()
         if (actualHash !== manifest.sha256.toLowerCase()) throw new Error("Downloaded executable hash did not match the release manifest")
         writeFileSync(downloadPath, bytes)
+        const updateVersion = manifest.version.replace(/[^0-9A-Za-z._-]/g, "")
 
         const currentPath = process.execPath
         const backupPath = `${currentPath}.previous.exe`
@@ -67,6 +68,7 @@ export async function updatePackagedExecutable(): Promise<void> {
             "if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Force }",
             "Move-Item -LiteralPath $current -Destination $backup -Force",
             "Move-Item -LiteralPath $download -Destination $current -Force",
+            `$env:LYRICS_STATUS_UPDATE_VERSION = ${quotePowerShell(updateVersion)}`,
             "$env:LYRICS_STATUS_LAUNCHER = '1'",
             "Start-Process -FilePath $current -WorkingDirectory (Split-Path -Parent $current) -WindowStyle Hidden -PassThru | Out-Null",
             "Remove-Item -LiteralPath $backup -Force",
