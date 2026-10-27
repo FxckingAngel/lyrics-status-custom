@@ -1,0 +1,16 @@
+LyricsStatus setup
+
+1. Run Start-LyricsStatus.cmd. This keeps the app ready for signed updates.
+   You can run LyricsStatus.exe directly for a one-time start.
+2. Open http://127.0.0.1:8999 if the panel does not open automatically.
+3. In Account setup, enter your own Spotify Client ID and Client Secret.
+4. Register this exact Spotify redirect URI in the Spotify Developer Dashboard:
+   http://127.0.0.1:8999/callback/
+5. Click Authorize Spotify and finish the Spotify login in the browser.
+6. Enter your own Spotify cookies only if Spotify lyrics are needed.
+
+This package intentionally does not contain anyone else's Discord token,
+Spotify cookie, client secret, or refresh token.
+
+Automatic updates need a trusted manifest URL in launcher.json. Do not change
+it to a file or URL you do not control.

@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "express": "^4.21.2",
+    "he": "^1.2.0",
+    "node-fetch": "^2.7.0",
+    "node-stream-zip": "^1.15.0",
+    "totp-generator": "^1.0.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/he": "^1.2.3",
+    "@types/node-fetch": "^2.6.12",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node tests/smoke.js",
+    "start": "npm run build && node dist/index"
+  },
+  "pkg": {
+    "assets": [
+      "static/**/*",
+      "res/**/*",
+      "VERSION"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+/cache/
+/node_modules/
+/settings.json
+/.dist/
+/dist/
+/LyricsStatus.exe
+/LyricsStatus.download.exe
+/LyricsStatus.previous.exe
+/rate-limit-state.json
+/temp/
+/work/
+/.idea/
+/src/backup/
+/log.txt

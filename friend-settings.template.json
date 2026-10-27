@@ -1,0 +1,31 @@
+{
+  "credentials": {
+    "token": "",
+    "cookies": "",
+    "clientID": "",
+    "clientSecret": "",
+    "useExternalAuthServer": false,
+    "uuid": "",
+    "customRedirectUri": "http://127.0.0.1:8999/callback/",
+    "code": "",
+    "refreshToken": ""
+  },
+  "view": {
+    "timestamp": true,
+    "label": true,
+    "advanced": {
+      "enabled": false,
+      "customEmoji": "🎶",
+      "customStatus": "[{timestamp}] [{lyrics}]"
+    }
+  },
+  "timings": {
+    "sendTimeOffset": 500,
+    "enableAutooffset": true,
+    "autooffset": 3,
+    "statusUpdateInterval": 1100
+  },
+  "update": {
+    "enableAutoupdate": false
+  }
+}
