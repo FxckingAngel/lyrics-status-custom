@@ -53,7 +53,7 @@ export class Settings {
         sendTimeOffset: 500,
         enableAutooffset: true,
         autooffset: 3,
-        statusUpdateInterval: 1100
+        statusUpdateInterval: 800
     }
 
     public static update = {
